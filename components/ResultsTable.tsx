@@ -1,11 +1,14 @@
 'use client'
 import { Trophy, Zap, TrendingUp, Clock, Shield } from 'lucide-react'
 import ConfidenceMeter from './ConfidenceMeter'
+import RouteExplainer from './RouteExplainer'
+import { useLang } from '@/lib/LangContext'
 
 type RouteResult = { id:string;name:string;fxAdjustedRate:number;convertedAmount:number;totalFee:number;finalReceived:number;settlementHours:number;reliabilityScore:number;score:number;isBestCost:boolean;isFastest:boolean;confidence:'high'|'medium'|'low' }
 type Props = { routes: RouteResult[]; sourceCurrency: string; destinationCurrency: string; amount: number; savings: number }
 
 export default function ResultsTable({ routes, sourceCurrency, destinationCurrency, amount, savings }: Props) {
+  const { t } = useLang()
   const best = routes[0]
   const savingsPct = best.convertedAmount > 0 ? ((savings / best.convertedAmount) * 100).toFixed(1) : '0'
   return (

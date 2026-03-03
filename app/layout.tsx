@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { LangProvider } from "@/lib/LangContext";
 
 export const metadata: Metadata = {
   title: "RouteWise — Smart Cross-Border Payment Optimizer",
-  description: "AI-powered payment route intelligence for SMEs.",
+  description: "AI-powered payment route intelligence for SMEs. Compare 4 payment rails across 15 currencies.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -18,7 +19,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             }
           })();
         `}} />
-        {children}
+        <LangProvider>
+          {children}
+        </LangProvider>
       </body>
     </html>
   );

@@ -6,12 +6,16 @@ import SimulationForm from '@/components/SimulationForm'
 import ResultsTable from '@/components/ResultsTable'
 import AIInsightPanel from '@/components/AIInsightPanel'
 import FxTicker from '@/components/FxTicker'
+import Navbar from '@/components/Navbar'
+import RiskAnalyzer from '@/components/RiskAnalyzer'
+import { useLang } from '@/lib/LangContext'
 import ThemeToggle from '@/components/ThemeToggle'
 import AIChatWidget from '@/components/AIChatWidget'
 
 type SimHistory = { id:number; amount:number; src:string; dst:string; bestRoute:string; savings:number; result:any }
 
 export default function SimulatePage() {
+  const { t } = useLang()
   const [result, setResult] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [history, setHistory] = useState<SimHistory[]>([])
@@ -33,24 +37,7 @@ export default function SimulatePage() {
   return (
     <main className="min-h-screen bg-[var(--bg)] text-[var(--text)]">
       <FxTicker />
-      <nav className="sticky top-0 z-40 border-b border-[var(--border)] bg-[var(--bg)]/90 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 text-[var(--text2)] hover:text-[var(--text)] transition-colors">
-            <ArrowLeft className="w-4 h-4" />
-            <div className="w-6 h-6 bg-gradient-to-br from-indigo-500 to-violet-600 rounded flex items-center justify-center"><span className="text-white text-xs font-bold">RW</span></div>
-            <span className="font-display font-bold hidden sm:block">RouteWise</span>
-          </Link>
-          <div className="flex items-center gap-3">
-            <Link href="/dashboard" className="text-[var(--text2)] hover:text-[var(--text)] text-sm font-medium transition-colors hidden sm:block">Dashboard</Link>
-            <button onClick={() => setShowHistory(!showHistory)} className="flex items-center gap-1.5 text-[var(--text2)] text-sm border border-[var(--border)] px-3 py-1.5 rounded-lg hover:border-indigo-300 transition-all">
-              <History className="w-3.5 h-3.5" /><span className="hidden sm:block">History</span>
-              {history.length > 0 && <span className="bg-indigo-600 text-white text-xs px-1.5 rounded-full">{history.length}</span>}
-            </button>
-            {result && <button onClick={handleExportCSV} className="flex items-center gap-1.5 border border-[var(--border)] text-[var(--text2)] text-sm px-3 py-1.5 rounded-lg hover:border-indigo-300 transition-all"><Download className="w-3.5 h-3.5" /><span className="hidden sm:block">CSV</span></button>}
-            <ThemeToggle />
-          </div>
-        </div>
-      </nav>
+      <Navbar showSimBtn={false} showDashBtn={true} />
 
       <div className="max-w-7xl mx-auto px-6 py-10">
         <div className="mb-8">
@@ -108,6 +95,7 @@ export default function SimulatePage() {
                   <h2 className="font-bold text-lg mb-5">Route Comparison</h2>
                   <ResultsTable routes={result.data.routes} sourceCurrency={result.sourceCurrency} destinationCurrency={result.destinationCurrency} amount={result.amount} savings={result.data.savings} />
                 </div>
+                <RiskAnalyzer bestRoute={result.data.bestRoute} sourceCurrency={result.sourceCurrency} destinationCurrency={result.destinationCurrency} />
                 <AIInsightPanel routes={result.data.routes} bestRoute={result.data.bestRoute} sourceCurrency={result.sourceCurrency} destinationCurrency={result.destinationCurrency} amount={result.amount} />
               </>
             )}
