@@ -28,7 +28,7 @@ export default function Home() {
               <span className="text-white text-xs font-bold">RW</span>
             </div>
             <span className="font-display font-bold text-xl tracking-tight">RouteWise</span>
-            <span className="ml-2 hidden sm:inline bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 text-xs font-bold px-2 py-0.5 rounded-full border border-indigo-200 dark:border-indigo-800/40">HACKATHON 2025</span>
+            <span className="ml-2 hidden sm:inline bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 text-xs font-bold px-2 py-0.5 rounded-full border border-indigo-200 dark:border-indigo-800/40">Settle Faster & Save More</span>
           </div>
           <div className="flex items-center gap-4">
             <Link href="/dashboard" className="text-[var(--text2)] hover:text-[var(--text)] text-sm font-medium transition-colors hidden sm:block">Dashboard</Link>
