@@ -1,6 +1,7 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
+  darkMode: "class",
   content: [
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -13,11 +14,6 @@ const config: Config = {
         body: ["'DM Sans'", "sans-serif"],
         mono: ["'JetBrains Mono'", "monospace"],
       },
-      colors: {
-        indigo: {
-          950: "#0f0a2e",
-        }
-      }
     },
   },
   plugins: [],

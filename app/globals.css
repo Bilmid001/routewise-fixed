@@ -1,40 +1,31 @@
 @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500;700&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --bg: #050816;
+  --bg:#f0f4ff; --bg2:#e8eeff; --card:#ffffff; --card2:#f8faff;
+  --border:#e2e8f0; --text:#0f172a; --text2:#475569; --text3:#94a3b8;
 }
-
-body {
-  background-color: var(--bg);
-  font-family: 'DM Sans', sans-serif;
-  color: white;
+.dark {
+  --bg:#050816; --bg2:#0a0f1e; --card:#0f172a; --card2:#1e293b;
+  --border:#1e293b; --text:#f1f5f9; --text2:#94a3b8; --text3:#475569;
 }
-
-.font-display { font-family: 'Syne', sans-serif; }
-.font-mono { font-family: 'JetBrains Mono', monospace; }
-
+body { background-color:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif; transition:background-color 0.3s,color 0.3s; }
+.font-display { font-family:'Syne',sans-serif; }
+.font-mono    { font-family:'JetBrains Mono',monospace; }
 .grid-bg {
-  background-image:
-    linear-gradient(rgba(99,102,241,0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(99,102,241,0.04) 1px, transparent 1px);
-  background-size: 40px 40px;
+  background-image:linear-gradient(rgba(99,102,241,0.06) 1px,transparent 1px),linear-gradient(90deg,rgba(99,102,241,0.06) 1px,transparent 1px);
+  background-size:40px 40px;
 }
-
-.glow-indigo { box-shadow: 0 0 80px -10px rgba(99,102,241,0.4); }
-.glow-violet { box-shadow: 0 0 80px -10px rgba(139,92,246,0.4); }
-
-@keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-12px); }
-}
-.animate-float { animation: float 5s ease-in-out infinite; }
-
-@keyframes pulse-slow {
-  0%, 100% { opacity: 0.4; }
-  50% { opacity: 0.8; }
-}
-.animate-pulse-slow { animation: pulse-slow 3s ease-in-out infinite; }
+@keyframes ticker { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+.ticker-track { animation:ticker 32s linear infinite; }
+.ticker-track:hover { animation-play-state:paused; }
+@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+.animate-float { animation:float 5s ease-in-out infinite; }
+@keyframes pulse-slow { 0%,100%{opacity:0.4} 50%{opacity:0.9} }
+.animate-pulse-slow { animation:pulse-slow 3s ease-in-out infinite; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+.animate-fadeup { animation:fadeUp 0.5s ease forwards; }
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-thumb{background:#6366f1;border-radius:99px}
