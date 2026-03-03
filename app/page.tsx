@@ -141,7 +141,7 @@ export default function Home() {
 
       <section className="py-20 px-6 border-t border-[var(--border)]">
         <div className="max-w-2xl mx-auto text-center">
-          <div className="bg-indigo-600/5 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-700/40 text-indigo-600 dark:text-indigo-400 text-xs font-bold px-4 py-1.5 rounded-full inline-block mb-6 uppercase tracking-widest">Built for Hackathon 2025</div>
+          <div className="bg-indigo-600/5 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-700/40 text-indigo-600 dark:text-indigo-400 text-xs font-bold px-4 py-1.5 rounded-full inline-block mb-6 uppercase tracking-widest">Built By BilmidTech</div>
           <h2 className="font-display font-extrabold text-5xl mb-5 leading-tight">Ready to optimize your payments?</h2>
           <p className="text-[var(--text2)] mb-10 text-lg">Start with a free simulation. No signup required. Covers 15 currencies and 4 payment rails.</p>
           <Link href="/simulate" className="inline-flex items-center gap-3 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-bold px-10 py-5 rounded-xl text-xl transition-all shadow-2xl shadow-indigo-500/25">
