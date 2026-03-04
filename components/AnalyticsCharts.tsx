@@ -1,79 +1,58 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts'
+import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 
-const routeData = [
-  { name:'Bank',   score:0.721 },
-  { name:'Wallet', score:0.812 },
-  { name:'Card',   score:0.698 },
-  { name:'API',    score:0.934 },
+const barData = [
+  {name:'Bank',savings:38,fee:28},{name:'Wallet',savings:52,fee:18},{name:'Card',savings:18,fee:42},{name:'API',savings:72,fee:12}
 ]
-const trendData = [
-  { date:'Jan 15', savings:45  },
-  { date:'Jan 16', savings:32  },
-  { date:'Jan 17', savings:120 },
-  { date:'Jan 18', savings:29  },
-  { date:'Jan 19', savings:89  },
-  { date:'Jan 20', savings:16  },
-  { date:'Jan 21', savings:67  },
+const lineData = [
+  {month:'Aug',simulations:12},{month:'Sep',simulations:19},{month:'Oct',simulations:28},{month:'Nov',simulations:35},{month:'Dec',simulations:48},{month:'Jan',simulations:62},{month:'Feb',simulations:71}
 ]
-const Tip = ({ active, payload, label }: any) => active && payload?.length ? (
-  <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 shadow-xl">
-    <p className="text-slate-400 text-xs mb-1">{label}</p>
-    {payload.map((p: any) => <p key={p.name} className="text-sm font-bold" style={{color:p.color}}>{p.name}: {typeof p.value==='number' ? p.value.toFixed(3) : p.value}</p>)}
-  </div>
-) : null
 
-function AnimatedNumber({ target }: { target: number }) {
+function AnimatedNum({ target }: { target: number }) {
   const [val, setVal] = useState(0)
   useEffect(() => {
-    let cur = 0; const step = target / 75
-    const t = setInterval(() => { cur += step; if (cur >= target) { setVal(target); clearInterval(t) } else { setVal(Math.floor(cur)) } }, 16)
-    return () => clearInterval(t)
-  }, [target])
-  return <>{val}</>
+    let start = 0; const step = target/60
+    const t = setInterval(()=>{ start+=step; if(start>=target){setVal(target);clearInterval(t)}else setVal(Math.floor(start)) },20)
+    return ()=>clearInterval(t)
+  },[target])
+  return <span>{val.toLocaleString()}</span>
 }
 
 export default function AnalyticsCharts() {
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          { label:'Total Simulations', val:247, suffix:'',  col:'text-indigo-600 dark:text-indigo-400', bg:'bg-indigo-50 dark:bg-indigo-900/20 border-indigo-100 dark:border-indigo-800/40' },
-          { label:'Avg Savings (USD)', val:57,  suffix:'$', col:'text-emerald-600 dark:text-emerald-400', bg:'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-100 dark:border-emerald-800/40' },
-          { label:'Top Route Score',   val:93,  suffix:'%', col:'text-violet-600 dark:text-violet-400',  bg:'bg-violet-50 dark:bg-violet-900/20 border-violet-100 dark:border-violet-800/40' },
-          { label:'Avg Settlement',    val:1,   suffix:'h', col:'text-amber-600 dark:text-amber-400',   bg:'bg-amber-50 dark:bg-amber-900/20 border-amber-100 dark:border-amber-800/40' },
-        ].map(s => (
-          <div key={s.label} className={`border rounded-2xl p-5 ${s.bg}`}>
-            <div className="text-slate-500 text-xs uppercase tracking-wider mb-2">{s.label}</div>
-            <div className={`font-display font-extrabold text-3xl ${s.col}`}>{s.suffix}<AnimatedNumber target={s.val} /></div>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+        {[{label:'Total Simulations',value:247,suffix:''},{label:'Avg Savings (USD)',value:57,prefix:'$'},{label:'Top Route Score',value:93,suffix:'%'},{label:'Avg Settlement',value:1,suffix:'h'}].map(s=>(
+          <div key={s.label} className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-4 sm:p-5 shadow-sm text-center">
+            <div className="font-display font-extrabold text-2xl sm:text-3xl text-indigo-600 dark:text-indigo-400">
+              {s.prefix||''}<AnimatedNum target={s.value}/>{s.suffix||''}
+            </div>
+            <div className="text-xs text-[var(--text3)] mt-1">{s.label}</div>
           </div>
         ))}
       </div>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/60 rounded-2xl p-6">
-          <h3 className="text-slate-900 dark:text-white font-bold mb-1">Route Performance Score</h3>
-          <p className="text-slate-400 text-xs mb-4">Composite score: cost 50%, speed 30%, reliability 20%</p>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+        <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-5 shadow-sm">
+          <h3 className="font-bold text-sm mb-4 text-[var(--text2)]">Route Performance — Avg Savings vs Fees (USD)</h3>
           <ResponsiveContainer width="100%" height={200}>
-            <BarChart data={routeData} margin={{top:5,right:5,left:-25,bottom:5}}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-              <XAxis dataKey="name" tick={{fill:'#94a3b8',fontSize:11}} tickLine={false} axisLine={false} />
-              <YAxis tick={{fill:'#94a3b8',fontSize:11}} tickLine={false} axisLine={false} domain={[0.5,1]} />
-              <Tooltip content={<Tip />} />
-              <Bar dataKey="score" name="Score" fill="#6366f1" radius={[6,6,0,0]} />
+            <BarChart data={barData}><CartesianGrid strokeDasharray="3 3" stroke="var(--border)"/>
+              <XAxis dataKey="name" tick={{fontSize:12,fill:'var(--text3)'}} axisLine={false}/>
+              <YAxis tick={{fontSize:12,fill:'var(--text3)'}} axisLine={false}/>
+              <Tooltip contentStyle={{background:'var(--card)',border:'1px solid var(--border)',borderRadius:'12px',fontSize:12}}/>
+              <Bar dataKey="savings" fill="#6366f1" radius={[6,6,0,0]} name="Avg Savings"/>
+              <Bar dataKey="fee" fill="#e2e8f0" radius={[6,6,0,0]} name="Avg Fee"/>
             </BarChart>
           </ResponsiveContainer>
         </div>
-        <div className="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/60 rounded-2xl p-6">
-          <h3 className="text-slate-900 dark:text-white font-bold mb-1">Savings Trend</h3>
-          <p className="text-slate-400 text-xs mb-4">Simulated savings over recent transactions (USD)</p>
+        <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-5 shadow-sm">
+          <h3 className="font-bold text-sm mb-4 text-[var(--text2)]">Monthly Simulations Growth</h3>
           <ResponsiveContainer width="100%" height={200}>
-            <LineChart data={trendData} margin={{top:5,right:5,left:-25,bottom:5}}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-              <XAxis dataKey="date" tick={{fill:'#94a3b8',fontSize:11}} tickLine={false} axisLine={false} />
-              <YAxis tick={{fill:'#94a3b8',fontSize:11}} tickLine={false} axisLine={false} />
-              <Tooltip content={<Tip />} />
-              <Line type="monotone" dataKey="savings" name="Savings" stroke="#8b5cf6" strokeWidth={2.5} dot={{fill:'#8b5cf6',r:4}} activeDot={{r:6}} />
+            <LineChart data={lineData}><CartesianGrid strokeDasharray="3 3" stroke="var(--border)"/>
+              <XAxis dataKey="month" tick={{fontSize:12,fill:'var(--text3)'}} axisLine={false}/>
+              <YAxis tick={{fontSize:12,fill:'var(--text3)'}} axisLine={false}/>
+              <Tooltip contentStyle={{background:'var(--card)',border:'1px solid var(--border)',borderRadius:'12px',fontSize:12}}/>
+              <Line type="monotone" dataKey="simulations" stroke="#8b5cf6" strokeWidth={3} dot={{fill:'#8b5cf6',r:4}} name="Simulations"/>
             </LineChart>
           </ResponsiveContainer>
         </div>

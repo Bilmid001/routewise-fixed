@@ -1,22 +1,18 @@
 'use client'
-type Props = { score: number; confidence: 'high' | 'medium' | 'low' }
-
-export default function ConfidenceMeter({ score, confidence }: Props) {
-  const pct = Math.min(Math.round(score * 100), 100)
-  const ring = confidence === 'high' ? '#10b981' : confidence === 'medium' ? '#f59e0b' : '#ef4444'
-  const label = confidence === 'high' ? 'High' : confidence === 'medium' ? 'Medium' : 'Low'
-  const r = 20, circ = 2 * Math.PI * r
-  const offset = circ - (pct / 100) * circ
+type Props = { score: number; size?: number }
+export default function ConfidenceMeter({ score, size = 52 }: Props) {
+  const r = 20; const circ = 2 * Math.PI * r
+  const fill = circ * (1 - score); const pct = Math.round(score * 100)
+  const color = score >= 0.85 ? '#10b981' : score >= 0.65 ? '#f59e0b' : '#ef4444'
   return (
-    <div className="flex flex-col items-center gap-1">
-      <svg width="52" height="52" viewBox="0 0 52 52">
-        <circle cx="26" cy="26" r={r} fill="none" stroke="#e2e8f0" strokeWidth="4" className="dark:stroke-slate-700" />
-        <circle cx="26" cy="26" r={r} fill="none" stroke={ring} strokeWidth="4"
-          strokeDasharray={circ} strokeDashoffset={offset}
-          strokeLinecap="round" transform="rotate(-90 26 26)" style={{ transition: 'stroke-dashoffset 0.6s ease' }} />
-        <text x="26" y="30" textAnchor="middle" fontSize="10" fontWeight="bold" fill={ring} fontFamily="JetBrains Mono">{pct}</text>
+    <div className="flex flex-col items-center gap-0.5">
+      <svg width={size} height={size} viewBox="0 0 48 48">
+        <circle cx="24" cy="24" r={r} fill="none" stroke="currentColor" strokeWidth="5" className="text-slate-200 dark:text-slate-700"/>
+        <circle cx="24" cy="24" r={r} fill="none" stroke={color} strokeWidth="5" strokeLinecap="round"
+          strokeDasharray={circ} strokeDashoffset={fill} transform="rotate(-90 24 24)"
+          style={{transition:'stroke-dashoffset 0.8s ease'}}/>
+        <text x="24" y="28" textAnchor="middle" fontSize="11" fontWeight="700" fill={color}>{pct}%</text>
       </svg>
-      <span className="text-xs font-semibold" style={{ color: ring }}>{label}</span>
     </div>
   )
 }
