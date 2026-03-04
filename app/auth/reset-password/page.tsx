@@ -2,10 +2,10 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { Loader2, ArrowLeft, Zap, CheckCircle } from 'lucide-react'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { getSupabaseBrowser } from '@/lib/supabase'
 
 export default function ResetPasswordPage() {
-  const supabase = createClientComponentClient()
+  const supabase = getSupabaseBrowser()
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
   const [sent, setSent] = useState(false)

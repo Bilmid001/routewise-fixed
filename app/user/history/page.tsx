@@ -5,13 +5,13 @@ import { Download, Bell, BellOff, Plus, Trash2, Clock, TrendingUp, BarChart3 } f
 import Navbar from '@/components/Navbar'
 import FxTicker from '@/components/FxTicker'
 import { useAuth } from '@/lib/AuthContext'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { getSupabaseBrowser } from '@/lib/supabase'
 import { MOCK_SIMULATIONS, CURRENCIES } from '@/lib/mockData'
 
 export default function HistoryPage() {
   const { user } = useAuth()
   const router = useRouter()
-  const supabase = createClientComponentClient()
+  const supabase = getSupabaseBrowser()
   const [tab, setTab] = useState<'history'|'alerts'>('history')
   const [sims, setSims] = useState<any[]>([])
   const [alerts, setAlerts] = useState<any[]>([])

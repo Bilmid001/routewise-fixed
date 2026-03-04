@@ -5,13 +5,13 @@ import { Shield, Users, BarChart3, TrendingUp, Globe, AlertTriangle } from 'luci
 import Navbar from '@/components/Navbar'
 import FxTicker from '@/components/FxTicker'
 import { useAuth } from '@/lib/AuthContext'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { getSupabaseBrowser } from '@/lib/supabase'
 import { MOCK_SIMULATIONS } from '@/lib/mockData'
 
 export default function AdminPage() {
   const { user, profile } = useAuth()
   const router = useRouter()
-  const supabase = createClientComponentClient()
+  const supabase = getSupabaseBrowser()
   const [stats, setStats] = useState({ users:0, simulations:0, totalSaved:0, topCorridor:'' })
   const [users, setUsers] = useState<any[]>([])
   const [loading, setLoading] = useState(true)

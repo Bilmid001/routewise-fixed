@@ -5,7 +5,7 @@ import { Save, Loader2, User, Building2, Globe, DollarSign, Bell, LogOut } from 
 import Navbar from '@/components/Navbar'
 import FxTicker from '@/components/FxTicker'
 import { useAuth } from '@/lib/AuthContext'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { getSupabaseBrowser } from '@/lib/supabase'
 import { CURRENCIES } from '@/lib/mockData'
 
 const COUNTRIES = ['Nigeria','United Kingdom','United States','Ghana','Kenya','South Africa','UAE','France','Canada','Australia','India','Germany','Brazil','Other']
@@ -13,7 +13,7 @@ const COUNTRIES = ['Nigeria','United Kingdom','United States','Ghana','Kenya','S
 export default function ProfilePage() {
   const { user, profile, signOut, refreshProfile } = useAuth()
   const router = useRouter()
-  const supabase = createClientComponentClient()
+  const supabase = getSupabaseBrowser()
   const [form, setForm] = useState({ full_name:'', company_name:'', country:'Nigeria', home_currency:'NGN', monthly_volume:'' })
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)

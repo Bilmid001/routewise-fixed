@@ -10,13 +10,13 @@ import FxTicker from '@/components/FxTicker'
 import Navbar from '@/components/Navbar'
 import AIChatWidget from '@/components/AIChatWidget'
 import { useAuth } from '@/lib/AuthContext'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { getSupabaseBrowser } from '@/lib/supabase'
 
 type H = { id:number;amount:number;src:string;dst:string;bestRoute:string;savings:number;result:any }
 
 export default function SimulatePage() {
   const { user } = useAuth()
-  const supabase = createClientComponentClient()
+  const supabase = getSupabaseBrowser()
   const [result, setResult] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [history, setHistory] = useState<H[]>([])

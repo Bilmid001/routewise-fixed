@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { ArrowRight, ArrowLeft, Zap, Building2, Globe, DollarSign, CheckCircle } from 'lucide-react'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { getSupabaseBrowser } from '@/lib/supabase'
 import { useAuth } from '@/lib/AuthContext'
 import { CURRENCIES } from '@/lib/mockData'
 
@@ -12,7 +12,7 @@ const COUNTRIES = ['Nigeria','United Kingdom','United States','Ghana','Kenya','S
 export default function OnboardingPage() {
   const { user, refreshProfile } = useAuth()
   const router = useRouter()
-  const supabase = createClientComponentClient()
+  const supabase = getSupabaseBrowser()
   const [step, setStep] = useState(0)
   const [data, setData] = useState({ fullName:'', company:'', country:'Nigeria', homeCurrency:'NGN', monthlyVolume:'10000' })
   const [saving, setSaving] = useState(false)

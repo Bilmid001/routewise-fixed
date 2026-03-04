@@ -3,11 +3,11 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Eye, EyeOff, Loader2, ArrowLeft, Zap, CheckCircle } from 'lucide-react'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { getSupabaseBrowser } from '@/lib/supabase'
 
 export default function SignupPage() {
   const router = useRouter()
-  const supabase = createClientComponentClient()
+  const supabase = getSupabaseBrowser()
   const [form, setForm] = useState({ fullName:'', email:'', password:'', company:'' })
   const [showPw, setShowPw] = useState(false)
   const [loading, setLoading] = useState(false)
