@@ -23,7 +23,7 @@ function getDemoReply(msg: string): string {
 
 export default function AIChatWidget() {
   const [open, setOpen] = useState(false)
-  const [msgs, setMsgs] = useState<Msg[]>([{role:'assistant',content:'Hi! I'm your RouteWise AI assistant. Ask me anything about payment routes, FX rates, fees, or settlement times! 🌍'}])
+  const [msgs, setMsgs] = useState<Msg[]>([{role:'assistant',content:"Hi! I'm your RouteWise AI assistant. Ask me anything about payment routes, FX rates, fees, or settlement times! 🌍"}])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const bottom = useRef<HTMLDivElement>(null)
