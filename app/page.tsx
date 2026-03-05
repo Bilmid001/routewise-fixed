@@ -2,7 +2,7 @@
 import Link from 'next/link'
 import { ArrowRight, Globe, Zap, Shield, TrendingUp, CheckCircle2, Lock, Star } from 'lucide-react'
 import FxTicker from '@/components/FxTicker'
-import Navbar from '@/components/Navbar'
+import PublicNavbar from '@/components/PublicNavbar'
 import AIChatWidget from '@/components/AIChatWidget'
 import SavingsCalculator from '@/components/SavingsCalculator'
 import { useAuth } from '@/lib/AuthContext'
@@ -15,7 +15,7 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-[var(--bg)] grid-bg text-[var(--text)]">
       <FxTicker />
-      <Navbar />
+      <PublicNavbar />
 
       {/* HERO */}
       <section className="pt-16 sm:pt-24 pb-16 sm:pb-20 px-4 sm:px-6 relative overflow-hidden">

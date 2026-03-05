@@ -3,7 +3,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Eye, EyeOff, Loader2 } from 'lucide-react'
-import Navbar from '@/components/Navbar'
+import PublicNavbar from '@/components/PublicNavbar'
 import FxTicker from '@/components/FxTicker'
 import { getSupabaseBrowser } from '@/lib/supabase'
 import { useLang } from '@/lib/LangContext'
@@ -36,7 +36,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-[var(--bg)] grid-bg text-[var(--text)]">
       <FxTicker />
-      <Navbar showSimBtn={false} />
+      <PublicNavbar />
       <div className="flex flex-col items-center justify-center px-4 py-12 sm:py-16">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">

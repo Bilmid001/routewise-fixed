@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Download, Bell, BellOff, Plus, Trash2, Clock, TrendingUp, BarChart3 } from 'lucide-react'
-import Navbar from '@/components/Navbar'
+import AppNavbar from '@/components/AppNavbar'
 import FxTicker from '@/components/FxTicker'
 import { useAuth } from '@/lib/AuthContext'
 import { getSupabaseBrowser } from '@/lib/supabase'

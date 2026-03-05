@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import FxTicker from '@/components/FxTicker'
-import Navbar from '@/components/Navbar'
+import AppNavbar from '@/components/AppNavbar'
 import AIChatWidget from '@/components/AIChatWidget'
 import { useAuth } from '@/lib/AuthContext'
 import { getSupabaseBrowser } from '@/lib/supabase'
@@ -59,7 +59,7 @@ export default function DashboardPage() {
 
   if (loading || fetching) return (
     <div className="min-h-screen bg-[var(--bg)] text-[var(--text)]">
-      <FxTicker /><Navbar />
+      <FxTicker /><AppNavbar />
       <div className="flex items-center justify-center h-64">
         <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
       </div>
@@ -71,7 +71,7 @@ export default function DashboardPage() {
   return (
     <main className="min-h-screen bg-[var(--bg)] text-[var(--text)]">
       <FxTicker />
-      <Navbar showSimBtn={true} />
+      <AppNavbar showSimBtn={true} />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
 
         {/* Header */}

@@ -3,7 +3,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Eye, EyeOff, Loader2, CheckCircle } from 'lucide-react'
-import Navbar from '@/components/Navbar'
+import PublicNavbar from '@/components/PublicNavbar'
 import FxTicker from '@/components/FxTicker'
 import { getSupabaseBrowser } from '@/lib/supabase'
 
@@ -39,7 +39,7 @@ export default function SignupPage() {
 
   if (success) return (
     <div className="min-h-screen bg-[var(--bg)] grid-bg text-[var(--text)]">
-      <FxTicker /><Navbar showSimBtn={false} />
+      <FxTicker /><PublicNavbar />
       <div className="flex items-center justify-center px-4 py-20">
         <div className="max-w-md w-full text-center bg-[var(--card)] border border-[var(--border)] rounded-2xl p-10 shadow-xl">
           <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-4"><CheckCircle className="w-8 h-8 text-emerald-600" /></div>
@@ -53,7 +53,7 @@ export default function SignupPage() {
 
   return (
     <div className="min-h-screen bg-[var(--bg)] grid-bg text-[var(--text)]">
-      <FxTicker /><Navbar showSimBtn={false} />
+      <FxTicker /><PublicNavbar />
       <div className="flex flex-col items-center justify-center px-4 py-12 sm:py-16">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
