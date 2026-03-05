@@ -1,7 +1,8 @@
 'use client'
 import { useState } from 'react'
 import { ArrowLeftRight } from 'lucide-react'
-import { CURRENCIES } from '@/lib/mockData'
+import { CURRENCIES, MOCK_ROUTES, getMarketRate } from '@/lib/mockData'
+import { calculateRoutes } from '@/lib/calculations'
 
 type Props = { onResult: (data: any) => void; isLoading: boolean; setIsLoading: (v: boolean) => void }
 
@@ -12,14 +13,16 @@ export default function SimulationForm({ onResult, isLoading, setIsLoading }: Pr
 
   const swap = () => { setSrc(dst); setDst(src) }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // Run calculation locally — zero network latency
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!amount || parseFloat(amount) <= 0) return
+    const num = parseFloat(amount)
+    if (!num || num <= 0) return
     setIsLoading(true)
     try {
-      const res = await fetch('/api/simulate', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ amount: parseFloat(amount), sourceCurrency: src, destinationCurrency: dst }) })
-      const data = await res.json()
-      onResult(data)
+      const marketRate = getMarketRate(src, dst)
+      const result = calculateRoutes(num, marketRate, MOCK_ROUTES)
+      onResult({ amount: num, sourceCurrency: src, destinationCurrency: dst, data: result })
     } catch(e) { console.error(e) }
     finally { setIsLoading(false) }
   }

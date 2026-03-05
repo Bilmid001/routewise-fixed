@@ -22,44 +22,39 @@ export default function SimulatePage() {
   const [showHistory, setShowHistory] = useState(false)
   const [saveStatus, setSaveStatus]   = useState<'idle'|'saving'|'saved'|'error'>('idle')
 
-  const handleResult = async (data: any) => {
+  // Show results instantly — never block UI on save
+  const handleResult = (data: any) => {
     setResult(data)
     setHistory(prev => [{
       id: Date.now(), amount: data.amount, src: data.sourceCurrency,
       dst: data.destinationCurrency, bestRoute: data.data.bestRoute.name,
       savings: data.data.savings, result: data,
     }, ...prev].slice(0, 10))
-
-    if (!user || !session) return   // not logged in — session history only
-
-    setSaveStatus('saving')
-    const supabase = getSupabaseBrowser()
-
-    // Make sure the client has the current session
-    await supabase.auth.setSession({
-      access_token:  session.access_token,
-      refresh_token: session.refresh_token,
-    })
-
-    const { error } = await supabase.from('simulations').insert({
-      user_id:          user.id,
-      amount:           data.amount,
-      source_currency:  data.sourceCurrency,
-      destination_currency: data.destinationCurrency,
-      best_route_name:  data.data.bestRoute.name,
-      best_route_score: data.data.bestRoute.score,
-      savings_amount:   data.data.savings,
-      market_rate:      data.data.marketRate,
-      routes_data:      data.data.routes,
-    })
-
-    if (error) {
-      console.error('Save error:', error.message)
-      setSaveStatus('error')
-    } else {
-      setSaveStatus('saved')
-      setTimeout(() => setSaveStatus('idle'), 3000)
+    if (user && session) {
+      setSaveStatus('saving')
+      saveSimulation(data)
     }
+  }
+
+  // Fire-and-forget background save
+  const saveSimulation = (data: any) => {
+    const supabase = getSupabaseBrowser()
+    supabase.auth.setSession({ access_token: session!.access_token, refresh_token: session!.refresh_token })
+      .then(() => supabase.from('simulations').insert({
+        user_id:              user!.id,
+        amount:               data.amount,
+        source_currency:      data.sourceCurrency,
+        destination_currency: data.destinationCurrency,
+        best_route_name:      data.data.bestRoute.name,
+        best_route_score:     data.data.bestRoute.score,
+        savings_amount:       data.data.savings,
+        market_rate:          data.data.marketRate,
+        routes_data:          data.data.routes,
+      }))
+      .then(({ error }: any) => {
+        if (error) { console.error('Save error:', error.message); setSaveStatus('error') }
+        else { setSaveStatus('saved'); setTimeout(() => setSaveStatus('idle'), 3000) }
+      })
   }
 
   const handleExportCSV = () => {
