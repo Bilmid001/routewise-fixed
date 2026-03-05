@@ -59,7 +59,7 @@ export default function HistoryPage() {
   return (
     <main className="min-h-screen bg-[var(--bg)] text-[var(--text)]">
       <FxTicker/>
-      <Navbar showSimBtn={true}/>
+      <AppNavbar showSimBtn={true}/>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
         <div className="mb-6 sm:mb-8">
           <div className="text-indigo-600 dark:text-indigo-400 text-xs font-bold uppercase tracking-widest mb-2">My Account</div>

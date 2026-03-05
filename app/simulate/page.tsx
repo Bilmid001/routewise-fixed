@@ -48,7 +48,7 @@ export default function SimulatePage() {
   return (
     <main className="min-h-screen bg-[var(--bg)] text-[var(--text)]">
       <FxTicker/>
-      <Navbar showSimBtn={false}/>
+      <AppNavbar showSimBtn={false}/>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
         <div className="mb-6 sm:mb-8 flex flex-wrap items-start justify-between gap-4">
           <div>

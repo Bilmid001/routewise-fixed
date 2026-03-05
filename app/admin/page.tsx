@@ -42,7 +42,7 @@ export default function AdminPage() {
   return (
     <main className="min-h-screen bg-[var(--bg)] text-[var(--text)]">
       <FxTicker/>
-      <Navbar showSimBtn={true}/>
+      <AppNavbar showSimBtn={true}/>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
         <div className="mb-6 sm:mb-8 flex flex-wrap items-center gap-4">
           <div className="w-10 h-10 bg-amber-100 dark:bg-amber-500/20 rounded-xl flex items-center justify-center"><Shield className="w-5 h-5 text-amber-600 dark:text-amber-400"/></div>
