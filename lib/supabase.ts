@@ -1,23 +1,15 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+const url  = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
-// Browser client — singleton
-let browserClient: ReturnType<typeof createClient> | null = null
+// Always return a fresh client so the current session token is always used
 export function getSupabaseBrowser() {
-  if (!browserClient) {
-    browserClient = createClient(supabaseUrl, supabaseAnonKey, {
-      auth: { persistSession: true, autoRefreshToken: true }
-    })
-  }
-  return browserClient
+  return createClient(url, anon, {
+    auth: { persistSession: true, autoRefreshToken: true, storageKey: 'rw-auth' }
+  })
 }
 
-// Server / API client
 export function getSupabaseServer() {
-  return createClient(
-    supabaseUrl,
-    process.env.SUPABASE_SERVICE_ROLE_KEY || supabaseAnonKey
-  )
+  return createClient(url, process.env.SUPABASE_SERVICE_ROLE_KEY || anon)
 }
