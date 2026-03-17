@@ -1,24 +1,23 @@
 'use client'
-import { ShieldCheck, ShieldAlert, ShieldX, TrendingUp, Clock, Activity } from 'lucide-react'
-type Route = { name:string;settlementHours:number;reliabilityScore:number;score:number }
-type Props = { bestRoute:Route;sourceCurrency:string;destinationCurrency:string }
-export default function RiskAnalyzer({ bestRoute, sourceCurrency, destinationCurrency }: Props) {
-  const em = ['NGN','GHS','KES','ZAR','XOF','BRL']
-  const vol = em.includes(sourceCurrency)||em.includes(destinationCurrency)
-  const risk = bestRoute.score>=0.85&&!vol?'low':bestRoute.score>=0.70||!vol?'medium':'high'
-  const cfgs = {
-    low:    {Icon:ShieldCheck,col:'text-emerald-600 dark:text-emerald-400',bg:'bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30',dot:'bg-emerald-500',label:'Low Risk'},
-    medium: {Icon:ShieldAlert, col:'text-amber-600 dark:text-amber-400',  bg:'bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/30',      dot:'bg-amber-500',  label:'Medium Risk'},
-    high:   {Icon:ShieldX,     col:'text-rose-600 dark:text-rose-400',    bg:'bg-rose-50 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30',            dot:'bg-rose-500',   label:'High Risk'},
+import { ShieldCheck,ShieldAlert,ShieldX,TrendingUp,Clock,Activity } from 'lucide-react'
+type Props = { bestRoute:{name:string;settlementHours:number;reliabilityScore:number;score:number};sourceCurrency:string;destinationCurrency:string }
+export default function RiskAnalyzer({ bestRoute,sourceCurrency,destinationCurrency }: Props) {
+  const em=['NGN','GHS','KES','ZAR','XOF','BRL']
+  const vol=em.includes(sourceCurrency)||em.includes(destinationCurrency)
+  const risk=bestRoute.score>=0.85&&!vol?'low':bestRoute.score>=0.70||!vol?'medium':'high'
+  const cfg={
+    low:{Icon:ShieldCheck,col:'text-emerald-600 dark:text-emerald-400',bg:'bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30',dot:'bg-emerald-500',label:'Low Risk'},
+    medium:{Icon:ShieldAlert,col:'text-amber-600 dark:text-amber-400',bg:'bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/30',dot:'bg-amber-500',label:'Medium Risk'},
+    high:{Icon:ShieldX,col:'text-rose-600 dark:text-rose-400',bg:'bg-rose-50 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30',dot:'bg-rose-500',label:'High Risk'},
   }
-  const c = cfgs[risk]
-  const factors = [
-    {Icon:TrendingUp, text: vol?'High FX volatility on this corridor':'Stable currency corridor',                                                                ok:!vol},
-    {Icon:Clock,      text: bestRoute.settlementHours<=2?'Fast settlement (low counterparty risk)':bestRoute.settlementHours>=24?'Slow settlement — higher exposure':'Moderate settlement window', ok:bestRoute.settlementHours<=4},
-    {Icon:Activity,   text: bestRoute.reliabilityScore>=0.95?'High reliability score':bestRoute.reliabilityScore>=0.90?'Moderate volatility':'Lower reliability — monitor closely', ok:bestRoute.reliabilityScore>=0.90},
+  const c=cfg[risk]
+  const factors=[
+    {Icon:TrendingUp,text:vol?'High FX volatility on this corridor':'Stable currency corridor',ok:!vol},
+    {Icon:Clock,text:bestRoute.settlementHours<=2?'Fast settlement (low counterparty risk)':bestRoute.settlementHours>=24?'Slow settlement — higher exposure':'Moderate settlement window',ok:bestRoute.settlementHours<=4},
+    {Icon:Activity,text:bestRoute.reliabilityScore>=0.95?'High reliability score':bestRoute.reliabilityScore>=0.90?'Moderate reliability':'Lower reliability — monitor closely',ok:bestRoute.reliabilityScore>=0.90},
   ]
   return (
-    <div className={"border rounded-2xl p-5 " + c.bg}>
+    <div className={"border rounded-2xl p-5 "+c.bg}>
       <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-white/60 dark:bg-slate-800/50 flex items-center justify-center"><c.Icon className={"w-5 h-5 "+c.col}/></div>
