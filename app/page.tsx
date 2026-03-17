@@ -99,7 +99,7 @@ export default function Home() {
       </section>
       <section className="py-16 sm:py-20 px-4 sm:px-6 border-t border-[var(--border)]">
         <div className="max-w-2xl mx-auto text-center">
-          <div className="text-indigo-600 dark:text-indigo-400 text-xs font-bold px-4 py-1.5 rounded-full inline-block mb-6 uppercase tracking-widest border border-indigo-200 dark:border-indigo-700/40">Built for Hackathon 2025</div>
+          <div className="text-indigo-600 dark:text-indigo-400 text-xs font-bold px-4 py-1.5 rounded-full inline-block mb-6 uppercase tracking-widest border border-indigo-200 dark:border-indigo-700/40">Send Smart. Save More. Reduce Risk.</div>
           <h2 className="font-display font-extrabold text-4xl sm:text-5xl mb-5 leading-tight">{t.cta_title}</h2>
           <p className="text-[var(--text2)] mb-8 text-base sm:text-lg">{t.cta_sub}</p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
