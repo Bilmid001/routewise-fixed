@@ -13,33 +13,37 @@ import { useAuth } from '@/lib/AuthContext'
 import { getSupabase } from '@/lib/supabase'
 type H = { id:number;amount:number;src:string;dst:string;bestRoute:string;savings:number;result:any }
 export default function SimulatePage() {
-  const { user,session }=useAuth()
+  const { user }=useAuth()
   const [result,setResult]=useState<any>(null)
   const [isLoading,setIsLoading]=useState(false)
   const [history,setHistory]=useState<H[]>([])
   const [showHistory,setShowHistory]=useState(false)
   const [saveStatus,setSaveStatus]=useState<'idle'|'saving'|'saved'|'error'>('idle')
-  // Show results instantly — save in background
+
+  // Show results instantly — save to DB in background
   const handleResult=(data:any)=>{
     setResult(data)
     setHistory(prev=>[{ id:Date.now(),amount:data.amount,src:data.sourceCurrency,dst:data.destinationCurrency,bestRoute:data.data.bestRoute.name,savings:data.data.savings,result:data },...prev].slice(0,10))
-    if(user&&session){ setSaveStatus('saving'); saveToDb(data) }
+    if(user){ setSaveStatus('saving'); saveToDb(data) }
   }
+
   const saveToDb=(data:any)=>{
-    const sb=getSupabase()
-    sb.auth.setSession({ access_token:session!.access_token,refresh_token:session!.refresh_token })
-      .then(()=>sb.from('simulations').insert({
-        user_id:user!.id, amount:data.amount,
-        source_currency:data.sourceCurrency, destination_currency:data.destinationCurrency,
-        best_route_name:data.data.bestRoute.name, best_route_score:data.data.bestRoute.score,
-        savings_amount:data.data.savings, market_rate:data.data.marketRate,
-        routes_data:data.data.routes,
-      }))
-      .then(({ error }:any)=>{
-        if(error){ console.error('Save error:',error.message); setSaveStatus('error') }
-        else { setSaveStatus('saved'); setTimeout(()=>setSaveStatus('idle'),3000) }
-      })
+    getSupabase().from('simulations').insert({
+      user_id:user!.id,
+      amount:data.amount,
+      source_currency:data.sourceCurrency,
+      destination_currency:data.destinationCurrency,
+      best_route_name:data.data.bestRoute.name,
+      best_route_score:data.data.bestRoute.score,
+      savings_amount:data.data.savings,
+      market_rate:data.data.marketRate,
+      routes_data:data.data.routes,
+    }).then(({ error }:any)=>{
+      if(error){ console.error('Save error:',error.message); setSaveStatus('error') }
+      else { setSaveStatus('saved'); setTimeout(()=>setSaveStatus('idle'),3000) }
+    })
   }
+
   const exportCSV=()=>{
     if(!result) return
     const hdrs=['Route','FX Rate','Converted','Total Fee','Final Received','Settlement (h)','Reliability','Score']
@@ -47,6 +51,7 @@ export default function SimulatePage() {
     const csv=[hdrs,...rows].map(r=>r.join(',')).join('\n')
     const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'})); a.download='routewise-'+Date.now()+'.csv'; a.click()
   }
+
   return (
     <main className="min-h-screen bg-[var(--bg)] text-[var(--text)]">
       <FxTicker/><AppNavbar showSimBtn={false}/>
@@ -74,14 +79,12 @@ export default function SimulatePage() {
               <h3 className="font-bold text-sm flex items-center gap-2"><History className="w-4 h-4 text-indigo-500"/>Session History</h3>
               <button onClick={()=>setHistory([])} className="text-xs text-rose-500 flex items-center gap-1"><Trash2 className="w-3 h-3"/>Clear</button>
             </div>
-            <div className="space-y-2">
-              {history.map(h=>(
-                <button key={h.id} onClick={()=>setResult(h.result)} className="w-full flex flex-wrap sm:flex-nowrap items-center justify-between bg-[var(--bg2)] border border-[var(--border)] hover:border-indigo-300 rounded-xl px-4 py-3 transition-all text-left gap-2">
-                  <div className="flex items-center gap-3"><span className="font-semibold text-sm">{h.src}→{h.dst}</span><span className="font-mono text-sm text-[var(--text2)]">{h.amount.toLocaleString()}</span></div>
-                  <div className="flex items-center gap-3 text-sm"><span className="text-indigo-600 dark:text-indigo-400 hidden sm:block">{h.bestRoute}</span><span className="text-emerald-600 dark:text-emerald-400 font-mono font-bold">+{h.savings.toFixed(2)}</span></div>
-                </button>
-              ))}
-            </div>
+            <div className="space-y-2">{history.map(h=>(
+              <button key={h.id} onClick={()=>setResult(h.result)} className="w-full flex flex-wrap sm:flex-nowrap items-center justify-between bg-[var(--bg2)] border border-[var(--border)] hover:border-indigo-300 rounded-xl px-4 py-3 transition-all text-left gap-2">
+                <div className="flex items-center gap-3"><span className="font-semibold text-sm">{h.src}→{h.dst}</span><span className="font-mono text-sm text-[var(--text2)]">{h.amount.toLocaleString()}</span></div>
+                <div className="flex items-center gap-3 text-sm"><span className="text-indigo-600 dark:text-indigo-400 hidden sm:block">{h.bestRoute}</span><span className="text-emerald-600 dark:text-emerald-400 font-mono font-bold">+{h.savings.toFixed(2)}</span></div>
+              </button>
+            ))}</div>
           </div>
         )}
         <div className="grid grid-cols-1 xl:grid-cols-5 gap-6 sm:gap-8">

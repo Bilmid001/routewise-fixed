@@ -8,36 +8,53 @@ import { useAuth } from '@/lib/AuthContext'
 import { getSupabase } from '@/lib/supabase'
 import { CURRENCIES } from '@/lib/mockData'
 export default function HistoryPage() {
-  const { user,session }=useAuth()
+  const { user,loading }=useAuth()
   const router=useRouter()
   const [tab,setTab]=useState<'history'|'alerts'>('history')
   const [sims,setSims]=useState<any[]>([])
   const [alerts,setAlerts]=useState<any[]>([])
   const [alertForm,setAlertForm]=useState({currency_pair:'',threshold:'',direction:'below'})
-  const [loading,setLoading]=useState(true)
+  const [fetching,setFetching]=useState(false)
+  const [loaded,setLoaded]=useState(false)
   const [error,setError]=useState('')
-  useEffect(()=>{ if(!user&&!loading){ router.push('/auth/login'); return }; if(user&&session) load() },[user,session])
-  const getSb=async()=>{ const sb=getSupabase(); await sb.auth.setSession({ access_token:session!.access_token,refresh_token:session!.refresh_token }); return sb }
+
+  useEffect(()=>{
+    if(loading) return
+    if(!user){ router.push('/auth/login'); return }
+    if(!loaded){ setLoaded(true); load() }
+  },[user,loading])
+
   const load=async()=>{
-    setLoading(true); setError('')
-    const sb=await getSb()
-    const [sr,ar]=await Promise.all([sb.from('simulations').select('*').eq('user_id',user!.id).order('created_at',{ascending:false}).limit(100),sb.from('email_alerts').select('*').eq('user_id',user!.id).order('created_at',{ascending:false})])
+    setFetching(true); setError('')
+    const sb=getSupabase()
+    const [sr,ar]=await Promise.all([
+      sb.from('simulations').select('*').eq('user_id',user!.id).order('created_at',{ascending:false}).limit(100),
+      sb.from('email_alerts').select('*').eq('user_id',user!.id).order('created_at',{ascending:false})
+    ])
     if(sr.error) setError(sr.error.message)
-    setSims(sr.data||[]); setAlerts(ar.data||[]); setLoading(false)
+    setSims(sr.data||[]); setAlerts(ar.data||[]); setFetching(false)
   }
+
   const addAlert=async()=>{
     if(!alertForm.currency_pair||!alertForm.threshold) return
-    const sb=await getSb()
-    const { data }=await sb.from('email_alerts').insert({ user_id:user!.id,currency_pair:alertForm.currency_pair,threshold:parseFloat(alertForm.threshold),direction:alertForm.direction,is_active:true }).select().single()
+    const { data }=await getSupabase().from('email_alerts').insert({ user_id:user!.id,currency_pair:alertForm.currency_pair,threshold:parseFloat(alertForm.threshold),direction:alertForm.direction,is_active:true }).select().single()
     if(data) setAlerts(p=>[data,...p]); setAlertForm({currency_pair:'',threshold:'',direction:'below'})
   }
-  const delAlert=async(id:string)=>{ const sb=await getSb(); await sb.from('email_alerts').delete().eq('id',id); setAlerts(p=>p.filter(a=>a.id!==id)) }
+
+  const delAlert=async(id:string)=>{
+    await getSupabase().from('email_alerts').delete().eq('id',id)
+    setAlerts(p=>p.filter(a=>a.id!==id))
+  }
+
   const exportCSV=()=>{
     const csv=[['Amount','Source','Dest','Best Route','Savings','Date'],...sims.map(s=>[s.amount,s.source_currency,s.destination_currency,s.best_route_name,s.savings_amount,new Date(s.created_at).toLocaleDateString()])].map(r=>r.join(',')).join('\n')
     const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'})); a.download='my-simulations.csv'; a.click()
   }
+
   const totalSaved=sims.reduce((s,r)=>s+(r.savings_amount||0),0)
+
   if(loading) return <div className="min-h-screen bg-[var(--bg)] text-[var(--text)]"><FxTicker/><AppNavbar/><div className="flex items-center justify-center h-64"><div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"/></div></div>
+
   return (
     <main className="min-h-screen bg-[var(--bg)] text-[var(--text)]">
       <FxTicker/><AppNavbar showSimBtn={true}/>
@@ -45,7 +62,7 @@ export default function HistoryPage() {
         <div className="mb-6 sm:mb-8"><div className="text-indigo-600 dark:text-indigo-400 text-xs font-bold uppercase tracking-widest mb-2">My Account</div><h1 className="font-display font-extrabold text-3xl sm:text-4xl">Simulation History</h1></div>
         {error&&<div className="mb-5 bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/30 rounded-2xl p-4 text-rose-600 dark:text-rose-400 text-sm"><strong>Error:</strong> {error}</div>}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6">
-          {[{label:'Simulations',val:sims.length},{label:'Total Saved',val:'$'+totalSaved.toFixed(0)},{label:'Corridors',val:Array.from(new Set(sims.map(s=>s.source_currency+'/'+s.destination_currency))).length},{label:'Active Alerts',val:alerts.filter(a=>a.is_active).length}].map(s=>(
+          {[{label:'Simulations',val:fetching?'…':sims.length},{label:'Total Saved',val:fetching?'…':'$'+totalSaved.toFixed(0)},{label:'Corridors',val:fetching?'…':Array.from(new Set(sims.map(s=>s.source_currency+'/'+s.destination_currency))).length},{label:'Active Alerts',val:alerts.filter(a=>a.is_active).length}].map(s=>(
             <div key={s.label} className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-4 shadow-sm text-center"><div className="font-display font-extrabold text-2xl text-indigo-600 dark:text-indigo-400">{s.val}</div><div className="text-xs text-[var(--text3)] mt-1">{s.label}</div></div>
           ))}
         </div>
@@ -57,7 +74,8 @@ export default function HistoryPage() {
             <h2 className="font-bold flex items-center gap-2"><BarChart3 className="w-4 h-4 text-indigo-500"/>All Simulations ({sims.length})</h2>
             {sims.length>0&&<button onClick={exportCSV} className="flex items-center gap-1.5 text-sm border border-[var(--border)] text-[var(--text2)] px-3 py-2 rounded-lg hover:border-indigo-300 transition-all"><Download className="w-3.5 h-3.5"/>Export CSV</button>}
           </div>
-          {sims.length===0?<div className="p-12 text-center"><div className="text-4xl mb-3">📊</div><p className="font-semibold text-[var(--text2)]">No simulations saved yet</p><p className="text-[var(--text3)] text-sm mt-1">Run a simulation and it will appear here automatically.</p></div>
+          {fetching?<div className="p-12 text-center"><div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto"/></div>
+          :sims.length===0?<div className="p-12 text-center"><div className="text-4xl mb-3">📊</div><p className="font-semibold text-[var(--text2)]">No simulations yet</p><p className="text-[var(--text3)] text-sm mt-1">Run a simulation and it will appear here automatically.</p></div>
           :<div className="overflow-x-auto"><table className="w-full min-w-[560px]">
             <thead><tr className="border-b border-[var(--border)]">{['Amount','Corridor','Best Route','Savings','Date'].map(h=><th key={h} className="text-left text-xs font-bold text-[var(--text3)] uppercase tracking-widest px-4 sm:px-6 py-3">{h}</th>)}</tr></thead>
             <tbody>{sims.map((s,i)=>(

@@ -16,7 +16,7 @@ export default function SignupPage() {
   const handleSignup=async(e:React.FormEvent)=>{
     e.preventDefault(); setError(''); setLoading(true)
     if(form.password.length<8){ setError('Password must be at least 8 characters'); setLoading(false); return }
-    const { error }=await getSupabase().auth.signUp({ email:form.email,password:form.password,options:{ data:{ full_name:form.fullName,company_name:form.company },emailRedirectTo:window.location.origin+'/onboarding' } })
+    const { error }=await getSupabase().auth.signUp({ email:form.email,password:form.password,options:{ data:{ full_name:form.fullName,company_name:form.company },emailRedirectTo:window.location.origin+'/auth/callback' } })
     if(error){ setError(error.message); setLoading(false) } else setSuccess(true)
   }
   const handleGoogle=async()=>{ setGLoading(true); await getSupabase().auth.signInWithOAuth({ provider:'google',options:{ redirectTo:window.location.origin+'/onboarding' } }) }
