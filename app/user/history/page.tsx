@@ -45,7 +45,7 @@ export default function HistoryPage() {
         <div className="mb-6 sm:mb-8"><div className="text-indigo-600 dark:text-indigo-400 text-xs font-bold uppercase tracking-widest mb-2">My Account</div><h1 className="font-display font-extrabold text-3xl sm:text-4xl">Simulation History</h1></div>
         {error&&<div className="mb-5 bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/30 rounded-2xl p-4 text-rose-600 dark:text-rose-400 text-sm"><strong>Error:</strong> {error}</div>}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6">
-          {[{label:'Simulations',val:sims.length},{label:'Total Saved',val:'$'+totalSaved.toFixed(0)},{label:'Corridors',val:[...new Set(sims.map(s=>s.source_currency+'/'+s.destination_currency))].length},{label:'Active Alerts',val:alerts.filter(a=>a.is_active).length}].map(s=>(
+          {[{label:'Simulations',val:sims.length},{label:'Total Saved',val:'$'+totalSaved.toFixed(0)},{label:'Corridors',val:Array.from(new Set(sims.map(s=>s.source_currency+'/'+s.destination_currency))).length},{label:'Active Alerts',val:alerts.filter(a=>a.is_active).length}].map(s=>(
             <div key={s.label} className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-4 shadow-sm text-center"><div className="font-display font-extrabold text-2xl text-indigo-600 dark:text-indigo-400">{s.val}</div><div className="text-xs text-[var(--text3)] mt-1">{s.label}</div></div>
           ))}
         </div>

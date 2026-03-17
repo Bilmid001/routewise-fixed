@@ -31,7 +31,7 @@ export default function DashboardPage() {
   const totalSaved=sims.reduce((s,r)=>s+(r.savings_amount||0),0)
   const avgScore=sims.length?sims.reduce((s,r)=>s+(r.best_route_score||0),0)/sims.length:0
   const topRoute=sims.length?Object.entries(sims.reduce((acc:Record<string,number>,s)=>{ acc[s.best_route_name]=(acc[s.best_route_name]||0)+1; return acc },{})).sort((a,b)=>b[1]-a[1])[0][0]:'—'
-  const corridors=[...new Set(sims.map(s=>s.source_currency+'/'+s.destination_currency))]
+  const corridors=Array.from(new Set(sims.map(s=>s.source_currency+'/'+s.destination_currency)))
   const monthlyMap:Record<string,{month:string;count:number;saved:number}>={}
   sims.forEach(s=>{ const m=new Date(s.created_at).toLocaleDateString('en-US',{month:'short',year:'2-digit'}); if(!monthlyMap[m]) monthlyMap[m]={month:m,count:0,saved:0}; monthlyMap[m].count++; monthlyMap[m].saved+=s.savings_amount||0 })
   const chartData=Object.values(monthlyMap).slice(-7)
