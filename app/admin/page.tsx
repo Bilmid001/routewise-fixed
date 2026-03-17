@@ -15,8 +15,7 @@ export default function AdminPage() {
   useEffect(()=>{ if(!loading&&!user){ router.push('/auth/login'); return }; if(user&&session) load() },[user,session,loading])
   const load=async()=>{
     setFetching(true)
-    const sb=getSupabase()
-    await sb.auth.setSession({ access_token:session!.access_token,refresh_token:session!.refresh_token })
+    const sb = getSupabase()
     const [ur,sr]=await Promise.all([sb.from('profiles').select('*').order('created_at',{ascending:false}).limit(50),sb.from('simulations').select('*').order('created_at',{ascending:false}).limit(200)])
     const u=ur.data||[]; const s=sr.data||[]
     const totalSaved=s.reduce((acc:number,sim:any)=>acc+(sim.savings_amount||0),0)

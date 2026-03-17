@@ -10,46 +10,34 @@ import { getSupabase } from '@/lib/supabase'
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { Zap, TrendingUp, Clock, BarChart3, ArrowRight } from 'lucide-react'
 
-type Sim = { id:string; amount:number; source_currency:string; destination_currency:string; best_route_name:string; savings_amount:number; best_route_score:number; created_at:string }
+type Sim = {
+  id: string; amount: number; source_currency: string; destination_currency: string
+  best_route_name: string; savings_amount: number; best_route_score: number; created_at: string
+}
 
 export default function DashboardPage() {
-  const { user, session, profile, loading } = useAuth()
+  const { user, profile, loading } = useAuth()
   const router = useRouter()
-  const [sims, setSims]       = useState<Sim[]>([])
+  const [sims, setSims]         = useState<Sim[]>([])
   const [fetching, setFetching] = useState(false)
-  const [error, setError]     = useState('')
-  const [redirected, setRedirected] = useState(false)
+  const [error, setError]       = useState('')
+  const [loaded, setLoaded]     = useState(false)
 
   useEffect(() => {
-    // Wait up to 3s for auth to resolve, then redirect if still no user
     if (loading) return
-    if (!user) {
-      if (!redirected) { setRedirected(true); router.push('/auth/login') }
-      return
-    }
-    load()
-  }, [user, session, loading])
+    if (!user) { router.push('/auth/login'); return }
+    if (!loaded) { setLoaded(true); load() }
+  }, [user, loading])
 
   const load = async () => {
-    if (!user) return
     setFetching(true); setError('')
-    const sb = getSupabase()
-
-    // Inject session if available, otherwise rely on persisted session
-    if (session) {
-      await sb.auth.setSession({
-        access_token: session.access_token,
-        refresh_token: session.refresh_token,
-      })
-    }
-
-    const { data, error: err } = await sb
+    // Use the singleton — no setSession needed, auth is already persisted
+    const { data, error: err } = await getSupabase()
       .from('simulations')
       .select('*')
-      .eq('user_id', user.id)
+      .eq('user_id', user!.id)
       .order('created_at', { ascending: false })
       .limit(100)
-
     if (err) setError(err.message)
     setSims(data || [])
     setFetching(false)
@@ -58,33 +46,32 @@ export default function DashboardPage() {
   const totalSaved = sims.reduce((s, r) => s + (r.savings_amount || 0), 0)
   const avgScore   = sims.length ? sims.reduce((s, r) => s + (r.best_route_score || 0), 0) / sims.length : 0
   const topRoute   = sims.length
-    ? Object.entries(sims.reduce((acc: Record<string,number>, s) => { acc[s.best_route_name] = (acc[s.best_route_name]||0)+1; return acc }, {})).sort((a,b)=>b[1]-a[1])[0][0]
+    ? Object.entries(sims.reduce((acc: Record<string,number>, s) => {
+        acc[s.best_route_name] = (acc[s.best_route_name]||0)+1; return acc
+      }, {})).sort((a,b)=>b[1]-a[1])[0][0]
     : '—'
-  const corridors = Array.from(new Set(sims.map(s => s.source_currency + '/' + s.destination_currency)))
+  const corridors = Array.from(new Set(sims.map(s => s.source_currency+'/'+s.destination_currency)))
 
-  const monthlyMap: Record<string,{month:string;count:number;saved:number}> = {}
+  const monthlyMap: Record<string,{month:string;count:number}> = {}
   sims.forEach(s => {
-    const m = new Date(s.created_at).toLocaleDateString('en-US', { month:'short', year:'2-digit' })
-    if (!monthlyMap[m]) monthlyMap[m] = { month:m, count:0, saved:0 }
+    const m = new Date(s.created_at).toLocaleDateString('en-US',{month:'short',year:'2-digit'})
+    if (!monthlyMap[m]) monthlyMap[m] = { month:m, count:0 }
     monthlyMap[m].count++
-    monthlyMap[m].saved += s.savings_amount || 0
   })
   const chartData = Object.values(monthlyMap).slice(-7)
 
   const routeCounts: Record<string,number> = {}
   sims.forEach(s => { routeCounts[s.best_route_name] = (routeCounts[s.best_route_name]||0)+1 })
-  const routeData = Object.entries(routeCounts).map(([name, count]) => ({
+  const routeData = Object.entries(routeCounts).map(([name,count]) => ({
     name: name.replace(' Transfer','').replace(' Settlement','').replace('Direct API','API').replace('Processing','Card'),
     count,
   }))
 
-  // Show spinner only during initial auth check
   if (loading) return (
     <div className="min-h-screen bg-[var(--bg)] text-[var(--text)]">
       <FxTicker /><AppNavbar />
-      <div className="flex flex-col items-center justify-center h-64 gap-3">
+      <div className="flex items-center justify-center h-64">
         <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
-        <p className="text-sm text-[var(--text3)]">Loading...</p>
       </div>
     </div>
   )
@@ -97,12 +84,11 @@ export default function DashboardPage() {
       <AppNavbar showSimBtn={true} />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
 
-        {/* Header */}
         <div className="mb-6 sm:mb-8 flex flex-wrap items-start justify-between gap-4">
           <div>
             <div className="text-indigo-600 dark:text-indigo-400 text-xs font-bold uppercase tracking-widest mb-2">My Dashboard</div>
             <h1 className="font-display font-extrabold text-3xl sm:text-4xl">
-              {profile?.full_name ? 'Hello, ' + profile.full_name.split(' ')[0] + ' 👋' : 'My Payment Intelligence'}
+              {profile?.full_name ? 'Hello, ' + profile.full_name.split(' ')[0] + ' 👋' : 'My Dashboard'}
             </h1>
             <p className="text-[var(--text2)] mt-1 text-sm">{profile?.company_name || user.email}</p>
           </div>
@@ -111,14 +97,12 @@ export default function DashboardPage() {
           </Link>
         </div>
 
-        {/* Error */}
         {error && (
           <div className="mb-5 bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/30 rounded-2xl p-4 text-rose-600 dark:text-rose-400 text-sm">
-            <strong>Error:</strong> {error} — Make sure you ran the SQL schema in Supabase.
+            <strong>Error:</strong> {error} — Check that you ran the SQL schema in Supabase.
           </div>
         )}
 
-        {/* Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6">
           {[
             { label:'Total Simulations', val: sims.length,                   color:'text-indigo-600 dark:text-indigo-400' },
@@ -128,7 +112,9 @@ export default function DashboardPage() {
           ].map(s => (
             <div key={s.label} className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-4 sm:p-5 shadow-sm text-center">
               <div className={"font-display font-extrabold text-2xl sm:text-3xl mb-1 " + s.color}>
-                {fetching ? <span className="inline-block w-8 h-6 bg-slate-200 dark:bg-slate-700 rounded animate-pulse" /> : s.val}
+                {fetching
+                  ? <span className="inline-block w-10 h-7 bg-slate-200 dark:bg-slate-700 rounded-lg animate-pulse" />
+                  : s.val}
               </div>
               <div className="text-xs text-[var(--text3)]">{s.label}</div>
             </div>
@@ -151,7 +137,6 @@ export default function DashboardPage() {
           </div>
         ) : (
           <>
-            {/* Charts */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6">
               {chartData.length > 1 && (
                 <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-5 shadow-sm">
@@ -159,10 +144,10 @@ export default function DashboardPage() {
                   <ResponsiveContainer width="100%" height={200}>
                     <LineChart data={chartData}>
                       <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                      <XAxis dataKey="month" tick={{ fontSize:11, fill:'var(--text3)' }} axisLine={false} />
-                      <YAxis tick={{ fontSize:11, fill:'var(--text3)' }} axisLine={false} />
-                      <Tooltip contentStyle={{ background:'var(--card)', border:'1px solid var(--border)', borderRadius:'12px', fontSize:12 }} />
-                      <Line type="monotone" dataKey="count" stroke="#6366f1" strokeWidth={3} dot={{ fill:'#6366f1', r:4 }} name="Simulations" />
+                      <XAxis dataKey="month" tick={{fontSize:11,fill:'var(--text3)'}} axisLine={false} />
+                      <YAxis tick={{fontSize:11,fill:'var(--text3)'}} axisLine={false} />
+                      <Tooltip contentStyle={{background:'var(--card)',border:'1px solid var(--border)',borderRadius:'12px',fontSize:12}} />
+                      <Line type="monotone" dataKey="count" stroke="#6366f1" strokeWidth={3} dot={{fill:'#6366f1',r:4}} name="Simulations" />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
@@ -173,9 +158,9 @@ export default function DashboardPage() {
                   <ResponsiveContainer width="100%" height={200}>
                     <BarChart data={routeData}>
                       <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                      <XAxis dataKey="name" tick={{ fontSize:11, fill:'var(--text3)' }} axisLine={false} />
-                      <YAxis tick={{ fontSize:11, fill:'var(--text3)' }} axisLine={false} />
-                      <Tooltip contentStyle={{ background:'var(--card)', border:'1px solid var(--border)', borderRadius:'12px', fontSize:12 }} />
+                      <XAxis dataKey="name" tick={{fontSize:11,fill:'var(--text3)'}} axisLine={false} />
+                      <YAxis tick={{fontSize:11,fill:'var(--text3)'}} axisLine={false} />
+                      <Tooltip contentStyle={{background:'var(--card)',border:'1px solid var(--border)',borderRadius:'12px',fontSize:12}} />
                       <Bar dataKey="count" fill="#8b5cf6" radius={[6,6,0,0]} name="Times used" />
                     </BarChart>
                   </ResponsiveContainer>
@@ -183,12 +168,11 @@ export default function DashboardPage() {
               )}
             </div>
 
-            {/* Insight cards */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-6">
               {[
-                { label:'Most Used Route',    val: topRoute,                                                           icon: Zap },
-                { label:'Top Corridor',        val: corridors[0] || '—',                                               icon: TrendingUp },
-                { label:'Avg Savings per Sim', val: sims.length ? '$'+(totalSaved/sims.length).toFixed(2) : '$0',     icon: Clock },
+                { label:'Most Used Route',    val: topRoute,                                                       icon: Zap },
+                { label:'Top Corridor',        val: corridors[0] || '—',                                           icon: TrendingUp },
+                { label:'Avg Savings per Sim', val: sims.length ? '$'+(totalSaved/sims.length).toFixed(2) : '$0', icon: Clock },
               ].map(s => (
                 <div key={s.label} className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-4 sm:p-5 shadow-sm flex items-center gap-4">
                   <div className="w-10 h-10 bg-indigo-100 dark:bg-indigo-900/30 rounded-xl flex items-center justify-center flex-shrink-0">
@@ -202,10 +186,9 @@ export default function DashboardPage() {
               ))}
             </div>
 
-            {/* Table */}
             <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl shadow-sm overflow-hidden">
               <div className="p-5 border-b border-[var(--border)] flex flex-wrap items-center justify-between gap-3">
-                <h2 className="font-bold flex items-center gap-2"><BarChart3 className="w-4 h-4 text-indigo-500" />Recent Simulations</h2>
+                <h2 className="font-bold flex items-center gap-2"><BarChart3 className="w-4 h-4 text-indigo-500"/>Recent Simulations</h2>
                 <Link href="/user/history" className="text-sm text-indigo-600 dark:text-indigo-400 font-semibold hover:underline flex items-center gap-1">View all <ArrowRight className="w-3 h-3" /></Link>
               </div>
               <div className="overflow-x-auto">
@@ -216,8 +199,8 @@ export default function DashboardPage() {
                     ))}
                   </tr></thead>
                   <tbody>
-                    {sims.slice(0, 8).map((s, i) => (
-                      <tr key={s.id} className={"hover:bg-[var(--bg2)] transition-colors " + (i < Math.min(7, sims.length-1) ? 'border-b border-[var(--border)]' : '')}>
+                    {sims.slice(0,8).map((s,i) => (
+                      <tr key={s.id} className={"hover:bg-[var(--bg2)] transition-colors "+(i<Math.min(7,sims.length-1)?'border-b border-[var(--border)]':'')}>
                         <td className="px-4 sm:px-6 py-3.5 font-mono text-sm font-bold">{Number(s.amount).toLocaleString()} {s.source_currency}</td>
                         <td className="px-4 sm:px-6 py-3.5 text-sm">{s.source_currency} → {s.destination_currency}</td>
                         <td className="px-4 sm:px-6 py-3.5"><span className="bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 text-xs font-bold px-2.5 py-1 rounded-full whitespace-nowrap">{s.best_route_name}</span></td>
