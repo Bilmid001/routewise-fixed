@@ -14,7 +14,7 @@ export default function PublicNavbar() {
         <Link href="/" className="flex items-center gap-2 flex-shrink-0">
           <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-lg flex items-center justify-center"><span className="text-white text-xs font-bold">RW</span></div>
           <span className="font-display font-bold text-lg sm:text-xl">RouteWise</span>
-          <span className="hidden sm:inline bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 text-xs font-bold px-2 py-0.5 rounded-full border border-indigo-200 dark:border-indigo-800/40">2025</span>
+          <span className="hidden sm:inline bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 text-xs font-bold px-2 py-0.5 rounded-full border border-indigo-200 dark:border-indigo-800/40">[RW]</span>
         </Link>
         <div className="hidden md:flex items-center gap-2">
           <LanguageSwitcher/><ThemeToggle/>
